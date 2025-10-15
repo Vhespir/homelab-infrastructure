@@ -30,7 +30,7 @@ This documentation showcases real-world implementations of:
 ### [`setup/`](setup/) - Infrastructure & Services
 - **[Prometheus & Grafana Stack](setup/prometheus-grafana-stack.md)** - Complete observability platform with custom dashboards
 - **[Docker & Containerization](setup/docker-containerization.md)** - Container management, security, and monitoring
-- **[Network Services](setup/network-services.md)** - Samba file sharing and NoMachine remote desktop
+- **[Network Services](setup/network-services.md)** - Samba file sharing and TigerVNC remote desktop
 
 ### [`scripts/`](scripts/) - Automation & Tools
 - **[system-health-check.sh](scripts/system-health-check.sh)** - Comprehensive system monitoring script
@@ -70,7 +70,7 @@ This documentation showcases real-world implementations of:
 - Cron job scheduling
 
 ### Help Desk Support
-- Remote access solutions (NoMachine)
+- Remote desktop solutions (TigerVNC for troubleshooting)
 - Cross-platform file sharing (Samba)
 - User authentication troubleshooting
 - Documentation and knowledge sharing
@@ -94,7 +94,7 @@ This documentation showcases real-world implementations of:
                   ↓
 ┌─────────────────────────────────────────┐
 │          Services & Apps                │
-│  Docker • Samba • NoMachine • cAdvisor │
+│  Docker • Samba • TigerVNC • cAdvisor  │
 └─────────────────────────────────────────┘
 ```
 
@@ -102,7 +102,7 @@ This documentation showcases real-world implementations of:
 - **Security**: ClamAV (antivirus), fail2ban (IPS), hardware security key auth
 - **Monitoring**: Prometheus, Grafana, Alertmanager, Node Exporter, Blackbox Exporter, cAdvisor
 - **Containers**: Docker Engine, containerd, multiple containerized applications
-- **Network**: Samba file server, NoMachine remote desktop
+- **Network**: Samba file server, TigerVNC remote desktop
 - **Automation**: Custom Bash scripts, cron jobs, automated backups
 
 ---

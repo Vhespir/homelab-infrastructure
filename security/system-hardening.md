@@ -174,7 +174,7 @@ docker run --security-opt=no-new-privileges:true \
 #### Port Configuration
 - **SSH**: Port 3666 (non-standard)
 - **Samba**: Port 445 (standard, protected by user auth)
-- **NoMachine**: Port 4000 (authenticated access only)
+- **TigerVNC**: Port 5901 (VNC password auth, SSH tunneling recommended)
 - **Monitoring**: Ports on localhost only (Grafana, Prometheus)
 
 #### Network Service Isolation

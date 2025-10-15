@@ -1,7 +1,7 @@
 # Network Services Configuration
 
 ## Overview
-Configured Samba file sharing and NoMachine remote desktop server on Arch Linux. These services provide cross-platform file sharing capabilities and secure remote access for system administration tasks.
+Configured Samba file sharing and TigerVNC remote desktop on Arch Linux. These services provide cross-platform file sharing capabilities and secure remote access for troubleshooting and system administration tasks.
 
 ## Services Configured
 
@@ -10,10 +10,10 @@ Configured Samba file sharing and NoMachine remote desktop server on Arch Linux.
 - **smb.service** - SMB/CIFS file sharing protocol
 - Cross-platform file sharing (Windows/Linux/macOS)
 
-### Remote Access
-- **nxserver.service** - NoMachine remote desktop server
-- Secure remote system access
-- Full desktop remote control
+### Remote Desktop Access
+- **TigerVNC** - Lightweight VNC server for remote desktop
+- Used for remote troubleshooting and technical support
+- Cross-platform compatibility (Windows, Mac, Linux)
 
 ## Samba File Sharing Setup
 
@@ -107,62 +107,99 @@ sudo journalctl -u nmbd -f
 testparm
 ```
 
-## NoMachine Remote Desktop
+## TigerVNC Remote Desktop
 
-### Setup and Configuration
+### Installation and Setup
 ```bash
-# NoMachine installed and configured
-# Service runs automatically
+# Install TigerVNC
+sudo pacman -S tigervnc
 
-# Check service status
-sudo systemctl status nxserver
+# Set VNC password
+vncpasswd
 
-# View NoMachine status
-sudo /usr/NX/bin/nxserver --status
+# Start VNC server on display :1
+vncserver :1
 
-# Restart service if needed
-sudo systemctl restart nxserver
+# View running VNC sessions
+vncserver -list
+```
+
+### Configuration
+**Location:** `~/.vnc/config`
+
+```bash
+# VNC server configuration
+geometry=1920x1080
+dpi=96
+localhost=no
+alwaysshared
 ```
 
 ### Connection Information
-- **Default Port**: 4000/tcp
-- **Protocol**: NX protocol (proprietary, encrypted)
-- **Authentication**: System user credentials
+- **Default Port**: 5901 (for display :1), 5902 (for display :2), etc.
+- **Protocol**: RFB (Remote Framebuffer Protocol)
+- **Authentication**: VNC password
 
 ### Client Setup
-1. Download NoMachine client from [nomachine.com](https://www.nomachine.com/)
-2. Install on remote device (Windows, Mac, Linux, mobile)
-3. Create new connection to server IP/hostname
-4. Authenticate with system username and password
-5. Select desktop session
+
+**macOS:**
+1. Built-in Screen Sharing app
+2. Connect to: `vnc://server-ip:5901`
+3. Enter VNC password
+
+**Windows:**
+1. Download TigerVNC Viewer or RealVNC Viewer
+2. Connect to: `server-ip:5901` or `server-ip::5901`
+3. Enter VNC password
+
+**Linux:**
+```bash
+# Using vncviewer
+vncviewer server-ip:1
+
+# Or with tigervnc
+vncviewer server-ip:5901
+```
 
 ### Security Configuration
 
 ```bash
-# Configure firewall to allow NoMachine
-sudo firewall-cmd --permanent --add-port=4000/tcp
-sudo firewall-cmd --reload
+# Configure firewall to allow VNC
+sudo iptables -A INPUT -p tcp --dport 5901 -j ACCEPT
 
-# Or with iptables
-sudo iptables -A INPUT -p tcp --dport 4000 -j ACCEPT
+# For SSH tunneling (recommended for security)
+ssh -L 5901:localhost:5901 user@server-ip
+# Then connect VNC client to localhost:5901
 ```
 
-### NoMachine Server Management
+### Server Management
 
 ```bash
-# Start/stop/restart server
-sudo /usr/NX/bin/nxserver --start
-sudo /usr/NX/bin/nxserver --stop
-sudo /usr/NX/bin/nxserver --restart
+# Start VNC server
+vncserver :1
 
-# Check server status
-sudo /usr/NX/bin/nxserver --status
+# Stop VNC server
+vncserver -kill :1
 
-# List active connections
-sudo /usr/NX/bin/nxserver --list
+# List active sessions
+vncserver -list
 
 # View logs
-sudo tail -f /usr/NX/var/log/nxserver.log
+cat ~/.vnc/*.log
+```
+
+### SSH Tunneling for Security
+
+For secure connections over the internet, use SSH tunneling:
+
+```bash
+# On local machine, create SSH tunnel
+ssh -L 5901:localhost:5901 user@remote-server
+
+# In VNC client, connect to:
+localhost:5901
+
+# This encrypts all VNC traffic through SSH
 ```
 
 ## Skills Demonstrated
@@ -197,12 +234,12 @@ sudo tail -f /usr/NX/var/log/nxserver.log
 - Printer sharing
 - Cross-platform collaboration
 
-### NoMachine Remote Access
-- Remote technical support
-- System administration from home
-- Server management without physical access
-- Remote troubleshooting
-- Off-site work capabilities
+### TigerVNC Remote Access
+- Remote troubleshooting for friends and family
+- Technical support for macOS users
+- Cross-platform desktop access
+- Lightweight alternative to heavier remote desktop solutions
+- SSH tunneling for secure connections
 
 ## Common Troubleshooting Scenarios
 
@@ -235,28 +272,43 @@ sudo pdbedit -L -v | grep username
 testparm -s
 ```
 
-### NoMachine: Cannot Connect
+### TigerVNC: Cannot Connect
 ```bash
-# Verify service is running
-sudo systemctl status nxserver
-sudo /usr/NX/bin/nxserver --status
+# Check if VNC server is running
+vncserver -list
 
-# Check if port is listening
-sudo ss -tlnp | grep 4000
+# Verify port is listening
+sudo ss -tlnp | grep 5901
 
-# Verify firewall allows connections
-sudo firewall-cmd --list-ports
-sudo iptables -L INPUT -n | grep 4000
+# Check firewall
+sudo iptables -L INPUT -n | grep 5901
 
-# Check logs for errors
-sudo tail -50 /usr/NX/var/log/nxserver.log
+# Review VNC logs
+cat ~/.vnc/*.log
+
+# Restart VNC server
+vncserver -kill :1
+vncserver :1
 ```
 
-### NoMachine: Slow Performance
-- Check network bandwidth (use iperf3)
-- Adjust display quality in NoMachine settings
-- Verify no other bandwidth-intensive processes
-- Check system resource usage on server
+### TigerVNC: Slow Performance
+- Reduce resolution in `~/.vnc/config`
+- Use SSH tunneling to reduce overhead
+- Check network bandwidth with iperf3
+- Lower color depth in VNC client settings
+- Verify system resource usage on server
+
+### TigerVNC: Authentication Issues
+```bash
+# Reset VNC password
+vncpasswd
+
+# Check VNC server is accessible
+vncviewer localhost:1  # Test locally first
+
+# For macOS connections, ensure format is correct:
+# vnc://server-ip:5901
+```
 
 ## Maintenance Tasks
 
@@ -267,7 +319,7 @@ sudo tail -50 /usr/NX/var/log/nxserver.log
 
 ### Weekly
 - Review Samba access logs
-- Check NoMachine connection logs
+- Check VNC session logs
 - Verify backups of configuration files
 
 ### Monthly
@@ -287,12 +339,12 @@ sudo tail -50 /usr/NX/var/log/nxserver.log
    - Regular password rotation
    - Access logging enabled
 
-2. **NoMachine Security**
-   - Encrypted connections (NX protocol)
-   - System-level authentication
-   - Monitor active sessions
-   - Session timeouts configured
-   - Access restricted by firewall
+2. **TigerVNC Security**
+   - VNC password authentication
+   - SSH tunneling for encrypted connections
+   - Firewall rules limiting access
+   - Session monitoring
+   - Recommended use through SSH tunnel for internet access
 
 3. **General Network Security**
    - Firewall rules limiting access
@@ -317,7 +369,7 @@ Both services are monitored through the Prometheus/Grafana/Alertmanager stack:
 - Connection count metrics
 
 ## Future Enhancements
-- Two-factor authentication for NoMachine
+- Systemd service for automatic VNC server startup
 - VPN integration for secure remote access
 - LDAP/Active Directory integration for centralized auth
 - Automated backup of Samba shares
@@ -326,5 +378,5 @@ Both services are monitored through the Prometheus/Grafana/Alertmanager stack:
 ## References
 - [Samba Documentation](https://www.samba.org/samba/docs/)
 - [Arch Linux Samba Wiki](https://wiki.archlinux.org/title/Samba)
-- [NoMachine Documentation](https://www.nomachine.com/documentation)
-- [NoMachine Server Guide](https://www.nomachine.com/AR02R01074)
+- [TigerVNC Documentation](https://tigervnc.org/)
+- [Arch Linux TigerVNC Wiki](https://wiki.archlinux.org/title/TigerVNC)
